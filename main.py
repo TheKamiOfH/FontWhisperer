@@ -15,7 +15,7 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 
 # This the font lists, the font is the name and the link is... the link, the image is the image link, which will get embed.
 font_lists = {
-    'Dialogue': [
+    'Dialogue': {'test':
         {'font': 'Joe Kubert', 'link': 'https://discord.com/channels/846402995252232232/846430804418625536/847154566733627423', 'image': 'https://cdn.discordapp.com/attachments/846430804418625536/847154508442107914/bl017i-2T.png'},
         {'font': 'Wall Scrawler', 'link': 'https://discord.com/channels/846402995252232232/846430804418625536/847156673366065192', 'image': 'https://media.discordapp.net/attachments/846430804418625536/847156613503516772/bl020i-2T.png'},
         {'font': 'Hedge Backwards', 'link': 'https://discord.com/channels/846402995252232232/846430804418625536/847156531995607070', 'image': 'https://media.discordapp.net/attachments/846430804418625536/847156505445662770/bl019i-2T.png'},
@@ -102,14 +102,16 @@ font_lists = {
         {'font': 'Scott McCloud', 'link': 'https://discord.com/channels/846402995252232232/846430804418625536/847160601646202950', 'image': 'https://cdn.discordapp.com/attachments/846430804418625536/847160496142155786/bl034i-2T.png'},
         {'font': 'Astronauts in Trouble', 'link': 'https://discord.com/channels/846402995252232232/846430804418625536/847158372880875540', 'image': 'https://cdn.discordapp.com/attachments/846430804418625536/847158216810299433/bl031i-2T.png'},
         {'font': 'Adam Kubert', 'link': 'https://discord.com/channels/846402995252232232/846430804418625536/847154961677811762', 'image': 'https://cdn.discordapp.com/attachments/846430804418625536/847154874209927248/bl018i-1.png'}
-    ],
-    'Narration': [
+                },
+    'Narration': {'test':
         {'font': 'Duty Calls', 'link': 'https://discord.com/channels/846402995252232232/846430825934487602/871040468841033778', 'image': 'https://cdn.discordapp.com/attachments/846430825934487602/871040460590813224/flag_dutycalls_300x300.png'}
-    ],
-    'Aside': [
+                 },
+    'Aside': {'test':
     {'font': 'The Sculptor', 'link': 'https://discord.com/channels/846402995252232232/846430825934487602/871040468841033778', 'image': 'https://cdn.discordapp.com/attachments/846430825934487602/871040460590813224/flag_dutycalls_300x300.png'}
-    ]
+             }
 }
+genres = font_lists.values()
+#genres is the list of genres in our font list
 
 
 # Console nerd stuff
@@ -129,16 +131,23 @@ def find_closest_match(input_name, available_names):
     return matches[0][0]
 
 @bot.command()
-async def suggest(ctx, font_type: str = None):
+async def suggest(ctx, font_type: str = None, genre : str = None):
     if font_type is None: #If you send just /suggest without any font, it'll show you the font lists, kinda like a help command.
         available_lists = '\n* '.join(font_lists.keys())
         preview_message = f"Hey, I'm the font suggestor. Here are my font lists: \n* {available_lists}\nTo get a suggestion, just type ***/suggest + The list you want to get a suggestion from.***"
         await ctx.send(preview_message)
         return
 
-    if font_type.lower() == "set": #This command gives a set of fonts, getting one font from every list, but without an image, to avoid having 50 embeds.
+    if font_type.lower() == "set" and genre is None: #This command gives a set of fonts, getting one font from every list, but without an image, to avoid having 50 embeds.
         suggestion_message = "I suggest using this font set:\n"
-        for font_list, suggestions in font_lists.items():
+        genres_list = list(font_lists.values())
+        n = len(genres_list)#no. of genres
+        genre = random.randint(0,n)
+        suggestions=[]
+        for i in font_lists.keys(): #looping through each type
+            for j in list(i.values()):#looping through the genres in the type
+                if genres_list[n][0] == j[0]: #when the name of the genre matches the randomly chosen genre
+                    suggestions.append((i,j[1]))#append all fonts in that genre along with the type for which they were selected
             suggestion = random.choice(suggestions)
             font_name = suggestion['font']
             link = suggestion['link']
@@ -152,8 +161,9 @@ async def suggest(ctx, font_type: str = None):
     
     font_type = font_type.lower() #Lowercase protection.
     
-    closest_match = find_closest_match(font_type, font_lists.keys()) #Anti-Typo errors measure, so you can send something like "DaILoGeU" and still get a font from the "Dialogue" font list.
     
+    closest_match = find_closest_match(font_type, genre.keys()) #Anti-Typo errors measure, so you can send something like "DaILoGeU" and still get a font from the "Dialogue"font list.
+   
     if closest_match in font_lists: 
         suggestions = font_lists[closest_match]
         suggestion = random.choice(suggestions)
