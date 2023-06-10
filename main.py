@@ -144,15 +144,17 @@ async def suggest(ctx, font_type: str = None, genre : str = None):
         n = len(genres_list)#no. of genres
         genre = random.randint(0,n)
         suggestions=[]
+        suggestion = []
         for i in font_lists.keys(): #looping through each type
             for j in list(i.values()):#looping through the genres in the type
                 if genres_list[n][0] == j[0]: #when the name of the genre matches the randomly chosen genre
                     suggestions.append((i,j[1]))#append all fonts in that genre along with the type for which they were selected
-            suggestion = random.choice(suggestions)
-            font_name = suggestion['font']
-            link = suggestion['link']
-            suggestion_message += f"{font_list} - ***{font_name}*** - {link}\n"
-        
+            suggestion.append(random.choice(suggestions[1])) #selecting one font of the genre from the type
+            fname = suggestion[0][1]['font']
+            link = suggestion[0][1]['link']
+            suggestion_message += f"***{fname}*** - {link}\n"
+            suggestion = [] #reseting suggestion for the next type
+            suggestions = [] #reseting suggestions for the next type
         await ctx.send(suggestion_message)
         return
     
